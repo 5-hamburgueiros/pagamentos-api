@@ -1,7 +1,7 @@
-import {
-  IngredienteModelTypeOrm,
-} from '@/infra/database/typerom/model';
+import { PagamentoModelTypeOrm } from "../model";
+import { ItemPagamentoModelTypeOrm } from "../model/item-pagamento.typeorm.model";
 
 export const typeOrmEntities = [
-  IngredienteModelTypeOrm,
+  PagamentoModelTypeOrm,
+  ItemPagamentoModelTypeOrm
 ];

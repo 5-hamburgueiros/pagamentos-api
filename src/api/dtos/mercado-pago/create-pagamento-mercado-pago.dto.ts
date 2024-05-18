@@ -2,7 +2,6 @@ import { ConfigService } from "@nestjs/config";
 import { CreatePagamentoDTO } from "../pagamento/create-pagamento.dto";
 
 export class CreatePagamentoMercadoPagoDTO implements CreatePagamentoMercadoPagoDTO {
-
   external_reference: string;
   items: CreatePagamentoMercadoPagoItensDTO[];
   total_amount: number;
@@ -19,8 +18,16 @@ export class CreatePagamentoMercadoPagoDTO implements CreatePagamentoMercadoPago
     this.notification_url = this.getUrlNotificacao();
   }
 
-  private getItens(createPagamentoDTO: CreatePagamentoDTO): CreatePagamentoMercadoPagoItensDTO[] {
+  private calcularValorTotal(items: CreatePagamentoMercadoPagoItensDTO[]): number {
+    return Number(items.reduce((acumulador, atual) => (acumulador + atual.total_amount), 0.0).toFixed(2));
+  }
 
+  private getUrlNotificacao(): string {
+    const configService = new ConfigService();
+    return configService.get('MERCADO_PAGO_NOTIFICATION_URL');
+  }
+
+  private getItens(createPagamentoDTO: CreatePagamentoDTO): CreatePagamentoMercadoPagoItensDTO[] {
     return createPagamentoDTO.items.map(item => ({
       sku_number: item.id,
       category: item.categoria,
@@ -31,15 +38,6 @@ export class CreatePagamentoMercadoPagoDTO implements CreatePagamentoMercadoPago
       unit_measure: 'unit',
       total_amount: item.valor_unidade * item.quantidade
     }));
-  }
-
-  private calcularValorTotal(items: CreatePagamentoMercadoPagoItensDTO[]): number {
-    return Number(items.reduce((acumulador, atual) => (acumulador + atual.total_amount), 0.0).toFixed(2));
-  }
-
-  private getUrlNotificacao(): string {
-    const configService = new ConfigService();
-    return configService.get('MERCADO_PAGO_NOTIFICATION_URL');
   }
 }
 

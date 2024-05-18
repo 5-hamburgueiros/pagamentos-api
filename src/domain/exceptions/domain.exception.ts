@@ -1,8 +1,6 @@
-import { ErrosDominioEnum } from "../enum/erros-dominio.enum";
-
-export class DomainException extends Error {
-  constructor(erroDominio: ErrosDominioEnum) {
-    super(erroDominio);
+export abstract class DomainException extends Error {
+  constructor(mensagem: string) {
+    super(mensagem);
     this.name = 'DomainException';
   }
 }

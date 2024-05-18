@@ -1,19 +1,23 @@
-import { ErrosDominioEnum } from '../enum/erros-dominio.enum';
+import { ErrosDominio } from '../enum/erros-dominio.enum';
 import { StatusPagamento } from '../enum/status-pagamento.enum';
-import { DomainException } from '../exceptions/domain.exception';
+import { PagamentoException } from '../exceptions/pagamento.exception';
 import { AbstractEntity } from './abstract.entity';
 
 export class PagamentoEntity extends AbstractEntity {
-  public qrData: string;
-  public idExterno: string; 
-  public status: StatusPagamento;
+  public id: string;
   public idPedido: string;
+  public titulo: string;
+  public descricao: string;
+  public qrCode: string;
+  public idExterno: string;
+  public status: StatusPagamento;
 
-  constructor(params: PagamentoModel.Params) {
+
+  constructor(params: PagamentoParams) {
     super(params.id, params.criadoEm, params.atualizadoEm);
-    this.qrData = params.qrData;
+    this.qrCode = params.qrCode;
     this.idPedido = params.idPedido;
-    this.status = params.status ? 
+    this.status = params.status ?
       params.status : StatusPagamento.AGUARDANDO_PAGAMENTO;
     this.idExterno = params.idExterno;
     this.verificaPropriedadesObrigatorias();
@@ -29,43 +33,43 @@ export class PagamentoEntity extends AbstractEntity {
     this.status = StatusPagamento.CANCELADO;
   }
 
-  public setIdExterno(idExterno: string){
+  public setIdExterno(idExterno: string) {
     this.idExterno = idExterno;
   }
 
   private validaPagamento(): void {
     if (this.status === StatusPagamento.PAGO) {
-      throw new DomainException(ErrosDominioEnum.PAGAMENTO_JA_REALIZADO);
+      throw new PagamentoException(ErrosDominio.Pagamento.PAGAMENTO_JA_REALIZADO);
     }
     if (this.status === StatusPagamento.CANCELADO) {
-      throw new DomainException(ErrosDominioEnum.PAGAMENTO_JA_CANCELADO);
+      throw new PagamentoException(ErrosDominio.Pagamento.PAGAMENTO_JA_CANCELADO);
     }
   }
-  
+
   private validaCancelamento(): void {
     if (this.status === StatusPagamento.CANCELADO) {
-      throw new DomainException(ErrosDominioEnum.PAGAMENTO_JA_CANCELADO);
+      throw new PagamentoException(ErrosDominio.Pagamento.PAGAMENTO_JA_CANCELADO);
     }
   }
 
   private verificaPropriedadesObrigatorias(): void {
-    if (!this.qrData) {
-      throw new DomainException(ErrosDominioEnum.QR_CODE_NAO_INFORMADO);
+    if (!this.qrCode) {
+      throw new PagamentoException(ErrosDominio.Pagamento.QR_CODE_NAO_INFORMADO);
     }
     if (!this.idPedido) {
-      throw new DomainException(ErrosDominioEnum.PEDIDO_NAO_INFORMADO);
+      throw new PagamentoException(ErrosDominio.Pagamento.PEDIDO_NAO_INFORMADO);
     }
   }
 }
 
-export namespace PagamentoModel {
-  export type Params = {
-    id?: string;
-    idPedido: string;
-    qrData?: string;
-    idExterno?: string;
-    status?: StatusPagamento;
-    criadoEm?: string;
-    atualizadoEm?: string;
-  };
+export type PagamentoParams = {
+  id?: string;
+  idPedido: string;
+  titulo: string;
+  descricao: string;
+  qrCode?: string;
+  idExterno?: string;
+  status?: StatusPagamento;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }

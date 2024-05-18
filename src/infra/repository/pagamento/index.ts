@@ -1,1 +1,1 @@
-export * from './pagamento.repository';
+export * from './pagamento.repository.impl';
