@@ -4,6 +4,8 @@ import { CriarPagamentoMercadoPagoDTO, CriarPagamentoMercadoPagoResponseDTO } fr
 import { HttpService } from "@nestjs/axios";
 import { map, Observable } from "rxjs";
 import { AxiosRequestConfig } from "axios";
+import { GetPagamentoMercadoPagoResponseDTO, GetPagamentoStatusMercadoPagoResponseDTO } from "../dtos/mercado-pago/get-pagamento-mercado-pago-response.dto";
+import { StatusPagamento } from "@/domain/enum";
 
 @Injectable()
 export class MercadoPagoHelper {
@@ -33,8 +35,34 @@ export class MercadoPagoHelper {
       .pipe(map(response => response.data));
   }
 
+  getRequisicaoDadosPagamento(idExternoPagamento: string): Observable<GetPagamentoMercadoPagoResponseDTO> {
+    const configuracaoRequest = this.getAxiosRequestConfig();
+    return this.httpService
+      .get<GetPagamentoMercadoPagoResponseDTO>(this.constroiUrlDadosPagamento(idExternoPagamento), configuracaoRequest)
+      .pipe(map(response => response.data));
+  }
+
+  getStatusPagamento(status: GetPagamentoStatusMercadoPagoResponseDTO): StatusPagamento {
+    const mapeamento: [key: GetPagamentoStatusMercadoPagoResponseDTO, value: StatusPagamento][] = [
+      [GetPagamentoStatusMercadoPagoResponseDTO.APPROVED, StatusPagamento.PAGO],
+      [GetPagamentoStatusMercadoPagoResponseDTO.AUTHORIZED, StatusPagamento.PAGO],
+      [GetPagamentoStatusMercadoPagoResponseDTO.PENDING, StatusPagamento.AGUARDANDO_PAGAMENTO],
+      [GetPagamentoStatusMercadoPagoResponseDTO.IN_PROCESS, StatusPagamento.AGUARDANDO_PAGAMENTO],
+      [GetPagamentoStatusMercadoPagoResponseDTO.IN_MEDIATION, StatusPagamento.AGUARDANDO_PAGAMENTO],
+      [GetPagamentoStatusMercadoPagoResponseDTO.REJECTED, StatusPagamento.CANCELADO],
+      [GetPagamentoStatusMercadoPagoResponseDTO.CANCELLED, StatusPagamento.CANCELADO],
+      [GetPagamentoStatusMercadoPagoResponseDTO.REFUNDED, StatusPagamento.CANCELADO],
+      [GetPagamentoStatusMercadoPagoResponseDTO.CHARGED_BACK, StatusPagamento.CANCELADO],
+    ];
+    return mapeamento[status] ? mapeamento[status][1] : StatusPagamento.AGUARDANDO_PAGAMENTO;
+  }
+
   private constroiUrlCriarPagamento(): string {
     return `${this.mercadoBaseURL}/instore/orders/qr/seller/collectors/${this.mercadoPagoUserId}/pos/${this.mercadoPagoPOS}/qrs`;
+  }
+
+  private constroiUrlDadosPagamento(idExternoPagamento: string): string {
+    return `${this.mercadoBaseURL}/v1/payments/${idExternoPagamento}`;
   }
 
   private getAxiosRequestConfig(): AxiosRequestConfig<any> {

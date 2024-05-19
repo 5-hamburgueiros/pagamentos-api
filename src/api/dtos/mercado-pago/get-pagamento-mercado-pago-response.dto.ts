@@ -1,4 +1,4 @@
-export interface GetPagamentoMercadoPagoDTO {
+export interface GetPagamentoMercadoPagoResponseDTO {
   "id": number,
   "date_created": string,
   "date_approved": string,
@@ -6,13 +6,13 @@ export interface GetPagamentoMercadoPagoDTO {
   "money_release_date": string,
   "payment_method_id": string,
   "payment_type_id": string,
-  "status": GetPagamentoStatusMercadoPagoDTO,
+  "status": GetPagamentoStatusMercadoPagoResponseDTO,
   "status_detail": string,
   "description": string,
   "external_reference": string,
 }
 
-export enum GetPagamentoStatusMercadoPagoDTO {
+export enum GetPagamentoStatusMercadoPagoResponseDTO {
   PENDING = "pending",
   APPROVED = "approved",
   AUTHORIZED = "authorized",

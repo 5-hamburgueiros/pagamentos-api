@@ -12,7 +12,6 @@ export class PagamentoController {
 
   @Post()
   criarPagamento(@Body() criarPagamentoDTO: CriarPagamentoDTO) {
-    console.log("entrei criarPagamento")
     return this.pagamentoService.criar(criarPagamentoDTO);
   }
 

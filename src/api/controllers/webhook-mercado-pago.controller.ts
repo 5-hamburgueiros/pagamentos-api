@@ -1,11 +1,16 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Inject, Post } from "@nestjs/common";
 import { NotificacaoPagamentoMercadoPagoDTO } from "../dtos";
+import { PagamentoService } from "@/domain/services/pagamento.service";
 
 @Controller('webhook-mercado-pago')
 export class WebHookMercadoPagoController {
-  constructor() {}
+  constructor(
+    @Inject(PagamentoService)
+    private pagamentoService: PagamentoService
+  ) { }
 
   @Post()
-  getNotificacaoMercadoPago(@Body() NotificacaoPagamentoMercadoPagoDTO: NotificacaoPagamentoMercadoPagoDTO) {
+  getNotificacaoMercadoPago(@Body() notificacaoPagamentoMercadoPagoDTO: NotificacaoPagamentoMercadoPagoDTO) {
+    return this.pagamentoService.atualizar(notificacaoPagamentoMercadoPagoDTO);
   }
 }

@@ -21,4 +21,7 @@ export class PagamentoRepositoryImpl implements PagamentoRepository {
   pegarPorId(id: string): Promise<PagamentoEntity> {
     throw new Error('Method not implemented.');
   }
+  pegarPorPedido(idPedido: string): Promise<PagamentoEntity> {
+    throw new Error('Method not implemented.');
+  }
 }

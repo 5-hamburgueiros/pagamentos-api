@@ -10,12 +10,19 @@ import { CriarPagamentoMercadoPagoResponseDTO } from '../dtos/mercado-pago/criar
 import { CriarPagamentoDTO } from '../dtos/pagamento/criar-pagamento.dto';
 import { CriarPagamentoMercadoPagoDTO } from '../dtos/mercado-pago/criar-pagamento-mercado-pago.dto';
 import { MercadoPagoMapper } from '../mappers/mercado-pago.mapper';
+import { NotificacaoPagamentoMercadoPagoDTO } from '../dtos';
+import { TipoNotificacaoMercadoPago } from '@/common/enums/tipo-notificacao-mercado-pago.enum';
+import { GetPagamentoMercadoPagoResponseDTO } from '../dtos/mercado-pago/get-pagamento-mercado-pago-response.dto';
+import { AtualizarStatusPagamentoUseCase } from '@/application/use-cases/pagamento/atualizar-status-pagamento.use-case';
+import { StatusPagamento } from '@/domain/enum';
 
 @Injectable()
 export class PagamentoServiceImpl implements PagamentoService {
   constructor(
     @Inject(CriarPagamentoUseCase)
     private readonly criarPagamentoUseCase: CriarPagamentoUseCase,
+    @Inject(AtualizarStatusPagamentoUseCase)
+    private readonly atualizarStatusPagamentoUseCase: AtualizarStatusPagamentoUseCase,
     @Inject(MercadoPagoHelper)
     private mercadoPagoHelper: MercadoPagoHelper,
     @Inject(MercadoPagoMapper)
@@ -31,9 +38,35 @@ export class PagamentoServiceImpl implements PagamentoService {
     return this.criarPagamentoUseCase.executar(pagamento);
   }
 
-  private validaResponseCriarPagamento(response: CriarPagamentoMercadoPagoResponseDTO): void {
-    if (!response || !response || !response.qr_data) {
-      throw new ErroIntegracaoMercadoPagoException(MensagensErro.ERRO_INTEGRACAO_MERCADO_PAGO);
+  async atualizar(notificacao: NotificacaoPagamentoMercadoPagoDTO): Promise<PagamentoEntity> {
+    if (this.validaNotificacaoPagamento(notificacao)) {
+      const idExterno = notificacao.data.id;
+      const response: GetPagamentoMercadoPagoResponseDTO = await firstValueFrom(this.mercadoPagoHelper.getRequisicaoDadosPagamento(idExterno));
+
+      const idPedido = response?.external_reference;
+      const statusPagamento: StatusPagamento = this.mercadoPagoHelper.getStatusPagamento(response?.status);
+      return this.atualizarStatusPagamentoUseCase.executar(idPedido, statusPagamento);
     }
+  }
+
+  private validaResponseCriarPagamento(response: CriarPagamentoMercadoPagoResponseDTO): void {
+    if (!response || !response.qr_data) {
+      throw new ErroIntegracaoMercadoPagoException(MensagensErro.ERRO_CRIAR_PAGAMENTO_MERCADO_PAGO);
+    }
+  }
+
+  private validaResponseGetDadosPagamento(response: GetPagamentoMercadoPagoResponseDTO): void {
+    if (!response) {
+      throw new ErroIntegracaoMercadoPagoException(MensagensErro.ERRO_PEGAR_DADOS_PAGAMENTO);
+    }
+  }
+
+  private validaNotificacaoPagamento(notificacao: NotificacaoPagamentoMercadoPagoDTO): boolean {
+    const action = notificacao?.action;
+    const idExterno = notificacao?.data?.id;
+    return [
+      TipoNotificacaoMercadoPago.PAYMENT_CREATED,
+      TipoNotificacaoMercadoPago.PAYMENT_UPDATED,
+    ].includes(action) && idExterno;
   }
 }

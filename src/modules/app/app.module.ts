@@ -13,18 +13,23 @@ import { HttpModule } from '@nestjs/axios';
 import { PagamentoRepositoryImpl } from '@/infra/repository/pagamento';
 import { DatabaseModule } from '../database/database.module';
 import { typeOrmEntities } from '@/infra/database/typeorm/config/typeorm.models';
+import { AtualizarStatusPagamentoUseCase } from '@/application/use-cases/pagamento/atualizar-status-pagamento.use-case';
+import { MercadoPagoMapper } from '@/api/mappers/mercado-pago.mapper';
 
-const useCases: Provider[] = [CriarPagamentoUseCase];
+const useCases: Provider[] = [CriarPagamentoUseCase, AtualizarStatusPagamentoUseCase];
 const helpers: Provider[] = [MercadoPagoHelper];
-const providers: Provider[] = [
+const mappers: Provider[] = [MercadoPagoMapper];
+const services: Provider[] = [
   {
     provide: PagamentoService,
     useClass: PagamentoServiceImpl
   },
+];
+const repositorios: Provider[] = [
   {
     provide: PagamentoRepository,
     useClass: PagamentoRepositoryImpl
-  }
+  },
 ];
 
 @Module({
@@ -38,7 +43,9 @@ const providers: Provider[] = [
   providers: [
     ...useCases,
     ...helpers,
-    ...providers,
+    ...mappers,
+    ...services,
+    ...repositorios,
   ],
   exports: [],
   controllers: [PagamentoController, WebHookMercadoPagoController]
