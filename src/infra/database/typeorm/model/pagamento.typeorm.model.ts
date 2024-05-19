@@ -1,11 +1,11 @@
-import { PagamentoEntity } from '@/domain/entities';
 import { StatusPagamento } from '@/domain/enum';
 import { IsOptional } from 'class-validator';
 import {
   Column,
   Entity,
   Index,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
+  Unique
 } from 'typeorm';
 import { AbstractModel } from './abstract.typeorm.model';
 
@@ -16,7 +16,11 @@ export class PagamentoModelTypeOrm extends AbstractModel {
   id: string;
 
   @Column({ nullable: false })
+  @Unique(['idPedido'])
   idPedido: string;
+
+  @Column({ nullable: false, type: 'float'})
+  valorPedido: number;
 
   @Column({ name: 'qrCode' })
   qrCode: string;

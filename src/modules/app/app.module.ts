@@ -6,17 +6,16 @@ import { PagamentoController } from '@/api/controllers/pagamento.controller';
 import { WebHookMercadoPagoController } from '@/api/controllers/webhook-mercado-pago.controller';
 import { PagamentoService } from '@/domain/services/pagamento.service';
 import { PagamentoServiceImpl } from '@/api/services/pagamento.service.impl';
-import { CriarPagamentoUseCase } from '@/application/use-cases/pagamento';
+import { CriarPagamentoUseCase, GetPagamentoPorIdUseCase, AtualizarStatusPagamentoUseCase, GetPagamentoPorPedidoUseCase } from '@/application/use-cases/pagamento';
 import { MercadoPagoHelper } from '@/api/helpers/mercado-pago.helper';
 import { PagamentoRepository } from '@/domain/repository';
 import { HttpModule } from '@nestjs/axios';
 import { PagamentoRepositoryImpl } from '@/infra/repository/pagamento';
 import { DatabaseModule } from '../database/database.module';
 import { typeOrmEntities } from '@/infra/database/typeorm/config/typeorm.models';
-import { AtualizarStatusPagamentoUseCase } from '@/application/use-cases/pagamento/atualizar-status-pagamento.use-case';
 import { MercadoPagoMapper } from '@/api/mappers/mercado-pago.mapper';
 
-const useCases: Provider[] = [CriarPagamentoUseCase, AtualizarStatusPagamentoUseCase];
+const useCases: Provider[] = [CriarPagamentoUseCase, AtualizarStatusPagamentoUseCase, GetPagamentoPorPedidoUseCase, GetPagamentoPorIdUseCase];
 const helpers: Provider[] = [MercadoPagoHelper];
 const mappers: Provider[] = [MercadoPagoMapper];
 const services: Provider[] = [

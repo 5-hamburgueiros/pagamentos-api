@@ -5,7 +5,6 @@ import { MercadoPagoHelper } from '../helpers/mercado-pago.helper';
 import { firstValueFrom } from 'rxjs';
 import { ErroIntegracaoMercadoPagoException } from '@/common/exceptions/mercado-pago/erro-integracao-mercado-pago.exception';
 import { MensagensErro } from '@/common/enums/mensagens-erro.enum';
-import { CriarPagamentoUseCase } from '@/application/use-cases/pagamento/criar-pagamento.use-case';
 import { CriarPagamentoMercadoPagoResponseDTO } from '../dtos/mercado-pago/criar-pagamento-mercado-pago-response.dto';
 import { CriarPagamentoDTO } from '../dtos/pagamento/criar-pagamento.dto';
 import { CriarPagamentoMercadoPagoDTO } from '../dtos/mercado-pago/criar-pagamento-mercado-pago.dto';
@@ -13,8 +12,8 @@ import { MercadoPagoMapper } from '../mappers/mercado-pago.mapper';
 import { NotificacaoPagamentoMercadoPagoDTO } from '../dtos';
 import { TipoNotificacaoMercadoPago } from '@/common/enums/tipo-notificacao-mercado-pago.enum';
 import { GetPagamentoMercadoPagoResponseDTO } from '../dtos/mercado-pago/get-pagamento-mercado-pago-response.dto';
-import { AtualizarStatusPagamentoUseCase } from '@/application/use-cases/pagamento/atualizar-status-pagamento.use-case';
 import { StatusPagamento } from '@/domain/enum';
+import { CriarPagamentoUseCase, GetPagamentoPorPedidoUseCase, AtualizarStatusPagamentoUseCase, GetPagamentoPorIdUseCase } from '@/application/use-cases/pagamento';
 
 @Injectable()
 export class PagamentoServiceImpl implements PagamentoService {
@@ -23,6 +22,10 @@ export class PagamentoServiceImpl implements PagamentoService {
     private readonly criarPagamentoUseCase: CriarPagamentoUseCase,
     @Inject(AtualizarStatusPagamentoUseCase)
     private readonly atualizarStatusPagamentoUseCase: AtualizarStatusPagamentoUseCase,
+    @Inject(GetPagamentoPorPedidoUseCase)
+    private readonly getPagamentoPorPedidoUseCase: GetPagamentoPorPedidoUseCase,
+    @Inject(GetPagamentoPorIdUseCase)
+    private readonly getPagamentoPorIdUseCase: GetPagamentoPorIdUseCase,
     @Inject(MercadoPagoHelper)
     private mercadoPagoHelper: MercadoPagoHelper,
     @Inject(MercadoPagoMapper)
@@ -31,7 +34,12 @@ export class PagamentoServiceImpl implements PagamentoService {
 
   async criar(criarPagamentoDTO: CriarPagamentoDTO): Promise<PagamentoEntity> {
     const criarPagamentoMercadoPagoDTO: CriarPagamentoMercadoPagoDTO = this.mercadoPagoMapper.paraCriarPagamentoMercadoPagoDTO(criarPagamentoDTO);
-    const criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO = await firstValueFrom(this.mercadoPagoHelper.getRequisicaoCriarPagamento(criarPagamentoMercadoPagoDTO));
+    //const criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO = await firstValueFrom(this.mercadoPagoHelper.getRequisicaoCriarPagamento(criarPagamentoMercadoPagoDTO));
+    //teste
+    const criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO = {
+      in_store_order_id: '123',
+      qr_data: '123'
+    }
     this.validaResponseCriarPagamento(criarPagamentoMercadoPagoResponseDTO);
 
     const pagamento: PagamentoEntity = this.mercadoPagoMapper.criarEntidadePagamento(criarPagamentoDTO, criarPagamentoMercadoPagoResponseDTO);
@@ -47,6 +55,14 @@ export class PagamentoServiceImpl implements PagamentoService {
       const statusPagamento: StatusPagamento = this.mercadoPagoHelper.getStatusPagamento(response?.status);
       return this.atualizarStatusPagamentoUseCase.executar(idPedido, statusPagamento);
     }
+  }
+
+  async pegarPorId(id: string): Promise<PagamentoEntity> {
+    return this.getPagamentoPorIdUseCase.executar(id);
+  }
+
+  async pegarPorPedido(idPedido: string): Promise<PagamentoEntity> {
+    return this.getPagamentoPorPedidoUseCase.executar(idPedido);
   }
 
   private validaResponseCriarPagamento(response: CriarPagamentoMercadoPagoResponseDTO): void {

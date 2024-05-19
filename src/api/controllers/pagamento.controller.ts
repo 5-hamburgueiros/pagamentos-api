@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Param, Post } from "@nestjs/common";
 import { PagamentoService } from "@/domain/services/pagamento.service";
 import { CriarPagamentoDTO } from "../dtos/pagamento/criar-pagamento.dto";
 
@@ -15,6 +15,13 @@ export class PagamentoController {
     return this.pagamentoService.criar(criarPagamentoDTO);
   }
 
-  @Get()
-  getPagamento() { }
+  @Get('pedido/:idPedido')
+  getPagamentoPorPedido(@Param('idPedido') idPedido: string) {
+    return this.pagamentoService.pegarPorPedido(idPedido);
+  }
+
+  @Get(':idPagamento')
+  getPagamentoPorId(@Param('idPagamento') idPagamento: string) {
+    return this.pagamentoService.pegarPorId(idPagamento);
+  }
 }

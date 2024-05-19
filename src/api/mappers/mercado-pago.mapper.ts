@@ -34,7 +34,7 @@ export class MercadoPagoMapper {
   criarEntidadePagamento(criarPagamentoDTO: CriarPagamentoDTO, criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO) {
     return new PagamentoEntity({
       idPedido: criarPagamentoDTO.idPedido,
-      valorPedidoo: criarPagamentoDTO.valorPedido,
+      valorPedido: criarPagamentoDTO.valorPedido,
       qrCode: criarPagamentoMercadoPagoResponseDTO.qr_data,
     })
   }

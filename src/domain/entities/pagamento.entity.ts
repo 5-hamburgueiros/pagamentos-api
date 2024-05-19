@@ -14,6 +14,7 @@ export class PagamentoEntity extends AbstractEntity {
   constructor(params: PagamentoParams) {
     super(params.id, params.criadoEm, params.atualizadoEm);
     this.qrCode = params.qrCode;
+    this.valorPedido = params.valorPedido;
     this.idPedido = params.idPedido;
     this.status = params.status ?
       params.status : StatusPagamento.AGUARDANDO_PAGAMENTO;
@@ -66,7 +67,7 @@ export class PagamentoEntity extends AbstractEntity {
 export type PagamentoParams = {
   id?: string;
   idPedido: string;
-  valorPedidoo: number;
+  valorPedido: number;
   qrCode?: string;
   idExterno?: string;
   status?: StatusPagamento;
