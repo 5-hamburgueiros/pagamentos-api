@@ -2,7 +2,6 @@ import { PagamentoNaoEncontradoException } from '@/common/exceptions/pagamento/p
 import { PagamentoEntity } from '@/domain/entities';
 import { StatusPagamento } from '@/domain/enum';
 import { PagamentoRepository } from '@/domain/repository';
-
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()

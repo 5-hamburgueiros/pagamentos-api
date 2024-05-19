@@ -14,6 +14,8 @@ import { PagamentoRepositoryImpl } from '@/infra/repository/pagamento';
 import { DatabaseModule } from '../database/database.module';
 import { typeOrmEntities } from '@/infra/database/typeorm/config/typeorm.models';
 import { MercadoPagoMapper } from '@/api/mappers/mercado-pago.mapper';
+import { PedidoService } from '@/domain/services/pedido.service';
+import { PedidoServiceImpl } from '@/api/services/pedido.service.impl';
 
 const useCases: Provider[] = [CriarPagamentoUseCase, AtualizarStatusPagamentoUseCase, GetPagamentoPorPedidoUseCase, GetPagamentoPorIdUseCase];
 const helpers: Provider[] = [MercadoPagoHelper];
@@ -22,6 +24,10 @@ const services: Provider[] = [
   {
     provide: PagamentoService,
     useClass: PagamentoServiceImpl
+  },
+  {
+    provide: PedidoService,
+    useClass: PedidoServiceImpl
   },
 ];
 const repositorios: Provider[] = [

@@ -14,6 +14,7 @@ import { TipoNotificacaoMercadoPago } from '@/common/enums/tipo-notificacao-merc
 import { GetPagamentoMercadoPagoResponseDTO } from '../dtos/mercado-pago/get-pagamento-mercado-pago-response.dto';
 import { StatusPagamento } from '@/domain/enum';
 import { CriarPagamentoUseCase, GetPagamentoPorPedidoUseCase, AtualizarStatusPagamentoUseCase, GetPagamentoPorIdUseCase } from '@/application/use-cases/pagamento';
+import { PedidoService } from '@/domain/services/pedido.service';
 
 @Injectable()
 export class PagamentoServiceImpl implements PagamentoService {
@@ -29,13 +30,15 @@ export class PagamentoServiceImpl implements PagamentoService {
     @Inject(MercadoPagoHelper)
     private mercadoPagoHelper: MercadoPagoHelper,
     @Inject(MercadoPagoMapper)
-    private mercadoPagoMapper: MercadoPagoMapper
+    private mercadoPagoMapper: MercadoPagoMapper,
+    @Inject(PedidoService)
+    private readonly pedidoService: PedidoService
   ) { }
 
   async criar(criarPagamentoDTO: CriarPagamentoDTO): Promise<PagamentoEntity> {
     const criarPagamentoMercadoPagoDTO: CriarPagamentoMercadoPagoDTO = this.mercadoPagoMapper.paraCriarPagamentoMercadoPagoDTO(criarPagamentoDTO);
+    //TODO: apagar esse mock após problemas com integração serem resolvidos
     //const criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO = await firstValueFrom(this.mercadoPagoHelper.getRequisicaoCriarPagamento(criarPagamentoMercadoPagoDTO));
-    //teste
     const criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO = {
       in_store_order_id: '123',
       qr_data: '123'
@@ -50,10 +53,12 @@ export class PagamentoServiceImpl implements PagamentoService {
     if (this.validaNotificacaoPagamento(notificacao)) {
       const idExterno = notificacao.data.id;
       const response: GetPagamentoMercadoPagoResponseDTO = await firstValueFrom(this.mercadoPagoHelper.getRequisicaoDadosPagamento(idExterno));
-
       const idPedido = response?.external_reference;
       const statusPagamento: StatusPagamento = this.mercadoPagoHelper.getStatusPagamento(response?.status);
-      return this.atualizarStatusPagamentoUseCase.executar(idPedido, statusPagamento);
+      const pagamento: PagamentoEntity = await this.atualizarStatusPagamentoUseCase.executar(idPedido, statusPagamento);
+
+      this.notificarPedido(pagamento)
+      return pagamento;
     }
   }
 
@@ -84,5 +89,9 @@ export class PagamentoServiceImpl implements PagamentoService {
       TipoNotificacaoMercadoPago.PAYMENT_CREATED,
       TipoNotificacaoMercadoPago.PAYMENT_UPDATED,
     ].includes(action) && idExterno;
+  }
+
+  private notificarPedido(pagamento: PagamentoEntity) {
+    this.pedidoService.notificar(pagamento);
   }
 }
