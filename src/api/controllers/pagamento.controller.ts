@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Inject, Post } from "@nestjs/common";
-import { CreatePagamentoDTO } from "../dtos";
 import { PagamentoService } from "@/domain/services/pagamento.service";
+import { CriarPagamentoDTO } from "../dtos/pagamento/criar-pagamento.dto";
 
 @Controller('pagamentos')
 export class PagamentoController {
@@ -8,13 +8,14 @@ export class PagamentoController {
   constructor(
     @Inject(PagamentoService)
     private pagamentoService: PagamentoService
-  ) {}
+  ) { }
 
   @Post()
-  criarPagamento(@Body() createPagamentoDTO: CreatePagamentoDTO){
-    return this.pagamentoService.criar(createPagamentoDTO);
+  criarPagamento(@Body() criarPagamentoDTO: CriarPagamentoDTO) {
+    console.log("entrei criarPagamento")
+    return this.pagamentoService.criar(criarPagamentoDTO);
   }
 
   @Get()
-  getPagamento(){}
+  getPagamento() { }
 }

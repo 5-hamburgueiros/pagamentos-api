@@ -10,8 +10,8 @@ export class GetPagamentoPorIdUseCase {
     private readonly clienteRepository: PagamentoRepository,
   ) {}
 
-  async execute(idPagamento: string): Promise<PagamentoEntity> {
-    const pagamentoEncontrado = await this.clienteRepository.getPorId(idPagamento);
+  async executar(idPagamento: string): Promise<PagamentoEntity> {
+    const pagamentoEncontrado = await this.clienteRepository.pegarPorId(idPagamento);
     this.validarRetorno(pagamentoEncontrado);
     return pagamentoEncontrado;
   }

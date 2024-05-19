@@ -1,10 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { CreatePagamentoMercadoPagoDTO, CreatePagamentoMercadoPagoResponseDTO } from "../dtos";
-import { PagamentoRepository } from "@/domain/repository";
+import { CriarPagamentoMercadoPagoDTO, CriarPagamentoMercadoPagoResponseDTO } from "../dtos";
 import { HttpService } from "@nestjs/axios";
 import { map, Observable } from "rxjs";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosRequestConfig } from "axios";
 
 @Injectable()
 export class MercadoPagoHelper {
@@ -16,7 +15,7 @@ export class MercadoPagoHelper {
 
   constructor(
     private readonly httpService: HttpService,
-    @Inject(PagamentoRepository)
+    @Inject(ConfigService)
     private readonly configService: ConfigService,
   ) {
     this.mercadoPagoUserId = this.configService.get('MERCADO_PAGO_USER_ID');
@@ -26,9 +25,9 @@ export class MercadoPagoHelper {
     this.urlCriarPagamento = this.constroiUrlCriarPagamento();
   }
 
-  getRequisicaoCriarPagamento(createPagamentoMercadoPagoDTO: CreatePagamentoMercadoPagoDTO): Observable<CreatePagamentoMercadoPagoResponseDTO> {
+  getRequisicaoCriarPagamento(criarPagamentoMercadoPagoDTO: CriarPagamentoMercadoPagoDTO): Observable<CriarPagamentoMercadoPagoResponseDTO> {
     const configuracaoRequest = this.getAxiosRequestConfig();
-    const body = JSON.parse(JSON.stringify(createPagamentoMercadoPagoDTO));
+    const body = JSON.parse(JSON.stringify(criarPagamentoMercadoPagoDTO));
     return this.httpService
       .post(this.urlCriarPagamento, body, configuracaoRequest)
       .pipe(map(response => response.data));

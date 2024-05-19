@@ -31,7 +31,7 @@
 //     this.mercadoBaseURL = this.configService.get('MERCADO_PAGO_BASE_URL');
 //   }
 
-//   async execute(idExternoPagamento: string): Promise<StatusPagamento> {
+//   async executar(idExternoPagamento: string): Promise<StatusPagamento> {
 //     try {
 //       const requestConfig = {
 //         headers: {
@@ -45,7 +45,7 @@
 //       const idPedido = response?.data?.external_reference;
 
 //       if (statusPagamento && idPedido) {
-//         const responsePedido = await this.findPedidoByIdUseCase.execute({ id: idPedido });
+//         const responsePedido = await this.findPedidoByIdUseCase.executar({ id: idPedido });
 //         const pedido = new PedidoEntity({ ...responsePedido });
 
 //         if (this.isPagamentoAprovado(statusPagamento)) {

@@ -6,12 +6,10 @@ import { AbstractEntity } from './abstract.entity';
 export class PagamentoEntity extends AbstractEntity {
   public id: string;
   public idPedido: string;
-  public titulo: string;
-  public descricao: string;
+  public valorPedido: number;
   public qrCode: string;
   public idExterno: string;
   public status: StatusPagamento;
-
 
   constructor(params: PagamentoParams) {
     super(params.id, params.criadoEm, params.atualizadoEm);
@@ -59,14 +57,16 @@ export class PagamentoEntity extends AbstractEntity {
     if (!this.idPedido) {
       throw new PagamentoException(ErrosDominio.Pagamento.PEDIDO_NAO_INFORMADO);
     }
+    if (!this.valorPedido) {
+      throw new PagamentoException(ErrosDominio.Pagamento.VALOR_PEDIDO_NAO_INFORMADO);
+    }
   }
 }
 
 export type PagamentoParams = {
   id?: string;
   idPedido: string;
-  titulo: string;
-  descricao: string;
+  valorPedidoo: number;
   qrCode?: string;
   idExterno?: string;
   status?: StatusPagamento;

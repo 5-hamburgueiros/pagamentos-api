@@ -18,7 +18,7 @@ export class PagamentoRepositoryImpl implements PagamentoRepository {
   atualizar(pagamento: PagamentoEntity): Promise<PagamentoEntity> {
     return this.pagamentoRepository.save(pagamento);
   }
-  getPorId(id: string): Promise<PagamentoEntity> {
+  pegarPorId(id: string): Promise<PagamentoEntity> {
     throw new Error('Method not implemented.');
   }
 }

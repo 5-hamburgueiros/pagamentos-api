@@ -1,8 +1,8 @@
-import { CreatePagamentoDTO } from '@/api/dtos';
+import { CriarPagamentoDTO } from '@/api/dtos';
 import { PagamentoEntity } from '../entities';
 
 export interface PagamentoService {
-  criar(createPagamentoDTO: CreatePagamentoDTO): Promise<PagamentoEntity>;
+  criar(criarPagamento: CriarPagamentoDTO): Promise<PagamentoEntity>;
 }
 
 export const PagamentoService = Symbol('PagamentoService'); 

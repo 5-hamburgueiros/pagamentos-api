@@ -2,8 +2,7 @@ import { Body, Controller, Post } from "@nestjs/common";
 import { NotificacaoPagamentoMercadoPagoDTO } from "../dtos";
 
 @Controller('webhook-mercado-pago')
-export class PagamentoController {
-
+export class WebHookMercadoPagoController {
   constructor() {}
 
   @Post()

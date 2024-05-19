@@ -7,7 +7,7 @@ export class CriarPagamentoMercadoPagoUseCase {
     private readonly pagamentoRepository: PagamentoRepository
   ) { }
 
-  async execute(pagamento) {
+  async executar(pagamento) {
     return this.pagamentoRepository.criar(pagamento);
   }
 }

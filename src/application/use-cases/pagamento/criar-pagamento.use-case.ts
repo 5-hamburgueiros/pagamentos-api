@@ -9,7 +9,7 @@ export class CriarPagamentoUseCase {
     private readonly pagamentoRepository: PagamentoRepository,
   ) { }
 
-  async execute(pagamento: PagamentoEntity): Promise<PagamentoEntity> {
+  async executar(pagamento: PagamentoEntity): Promise<PagamentoEntity> {
     return await this.pagamentoRepository.criar(pagamento);
   }
 }
