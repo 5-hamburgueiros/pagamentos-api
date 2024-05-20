@@ -8,12 +8,12 @@ export interface CriarPagamentoMercadoPagoDTO {
 }
 
 interface CriarPagamentoMercadoPagoItensDTO {
-  sku_number: string,
-  category: string,
-  title: string,
-  description: string,
-  unit_price: number,
-  quantity: number,
-  unit_measure: string,
-  total_amount: number
+  sku_number: string;
+  category: string;
+  title: string;
+  description: string;
+  unit_price: number;
+  quantity: number;
+  unit_measure: string;
+  total_amount: number;
 }

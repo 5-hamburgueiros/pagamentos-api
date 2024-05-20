@@ -11,18 +11,30 @@ export class PagamentoRepositoryImpl implements PagamentoRepository {
   constructor(
     @InjectRepository(PagamentoModelTypeOrm)
     private readonly pagamentoRepository: Repository<PagamentoModelTypeOrm>,
-  ) { }
+  ) {}
 
   criar(pagamento: PagamentoEntity): Promise<PagamentoEntity> {
-    return this.pagamentoRepository.save(pagamento).then(response => PagamentoTypeOrmMapper.paraEntidade(response));;
+    return this.pagamentoRepository
+      .save(pagamento)
+      .then(this.mapearParaEntidade);
   }
   atualizar(pagamento: PagamentoEntity): Promise<PagamentoEntity> {
-    return this.pagamentoRepository.save(pagamento).then(response => PagamentoTypeOrmMapper.paraEntidade(response));;
+    return this.pagamentoRepository
+      .save(pagamento)
+      .then(this.mapearParaEntidade);
   }
   pegarPorId(id: string): Promise<PagamentoEntity> {
-    return this.pagamentoRepository.findOneBy({ id }).then(response => PagamentoTypeOrmMapper.paraEntidade(response));
+    return this.pagamentoRepository
+      .findOne({ where: { id } })
+      .then(this.mapearParaEntidade);
   }
   pegarPorPedido(idPedido: string): Promise<PagamentoEntity> {
-    return this.pagamentoRepository.findOneBy({ idPedido }).then(response => PagamentoTypeOrmMapper.paraEntidade(response));
+    return this.pagamentoRepository
+      .findOneBy({ idPedido })
+      .then(this.mapearParaEntidade);
+  }
+
+  private mapearParaEntidade(response: PagamentoModelTypeOrm): PagamentoEntity {
+    return response ? PagamentoTypeOrmMapper.paraEntidade(response) : null;
   }
 }

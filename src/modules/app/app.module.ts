@@ -6,7 +6,12 @@ import { PagamentoController } from '@/api/controllers/pagamento.controller';
 import { WebHookMercadoPagoController } from '@/api/controllers/webhook-mercado-pago.controller';
 import { PagamentoService } from '@/domain/services/pagamento.service';
 import { PagamentoServiceImpl } from '@/api/services/pagamento.service.impl';
-import { CriarPagamentoUseCase, GetPagamentoPorIdUseCase, AtualizarStatusPagamentoUseCase, GetPagamentoPorPedidoUseCase } from '@/application/use-cases/pagamento';
+import {
+  CriarPagamentoUseCase,
+  GetPagamentoPorIdUseCase,
+  AtualizarStatusPagamentoUseCase,
+  GetPagamentoPorPedidoUseCase,
+} from '@/application/use-cases/pagamento';
 import { MercadoPagoHelper } from '@/api/helpers/mercado-pago.helper';
 import { PagamentoRepository } from '@/domain/repository';
 import { HttpModule } from '@nestjs/axios';
@@ -17,25 +22,31 @@ import { MercadoPagoMapper } from '@/api/mappers/mercado-pago.mapper';
 import { PedidoService } from '@/domain/services/pedido.service';
 import { PedidoServiceImpl } from '@/api/services/pedido.service.impl';
 
-const useCases: Provider[] = [CriarPagamentoUseCase, AtualizarStatusPagamentoUseCase, GetPagamentoPorPedidoUseCase, GetPagamentoPorIdUseCase];
+const useCases: Provider[] = [
+  CriarPagamentoUseCase,
+  AtualizarStatusPagamentoUseCase,
+  GetPagamentoPorPedidoUseCase,
+  GetPagamentoPorIdUseCase,
+];
 const helpers: Provider[] = [MercadoPagoHelper];
 const mappers: Provider[] = [MercadoPagoMapper];
 const services: Provider[] = [
   {
     provide: PagamentoService,
-    useClass: PagamentoServiceImpl
+    useClass: PagamentoServiceImpl,
   },
   {
     provide: PedidoService,
-    useClass: PedidoServiceImpl
+    useClass: PedidoServiceImpl,
   },
 ];
 const repositorios: Provider[] = [
   {
     provide: PagamentoRepository,
-    useClass: PagamentoRepositoryImpl
+    useClass: PagamentoRepositoryImpl,
   },
 ];
+const interceptors: Provider[] = [];
 
 @Module({
   imports: [
@@ -51,8 +62,9 @@ const repositorios: Provider[] = [
     ...mappers,
     ...services,
     ...repositorios,
+    ...interceptors,
   ],
   exports: [],
-  controllers: [PagamentoController, WebHookMercadoPagoController]
+  controllers: [PagamentoController, WebHookMercadoPagoController],
 })
-export class AppModule { }
+export class AppModule {}

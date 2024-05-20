@@ -1,5 +1,3 @@
-import { PagamentoModelTypeOrm } from "../model";
+import { PagamentoModelTypeOrm } from '../model';
 
-export const typeOrmEntities = [
-  PagamentoModelTypeOrm
-];
+export const typeOrmEntities = [PagamentoModelTypeOrm];

@@ -7,4 +7,4 @@ export interface PagamentoRepository {
   pegarPorPedido(idPedido: string): Promise<PagamentoEntity>;
 }
 
-export const PagamentoRepository = Symbol('PagamentoRepository'); 
+export const PagamentoRepository = Symbol('PagamentoRepository');

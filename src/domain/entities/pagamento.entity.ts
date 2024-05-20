@@ -1,4 +1,4 @@
-import { ErrosDominio } from '../enum/erros-dominio.enum';
+import { ErrosDominioPagamento } from '../enum/erros-dominio.enum';
 import { StatusPagamento } from '../enum/status-pagamento.enum';
 import { PagamentoException } from '../exceptions/pagamento.exception';
 import { AbstractEntity } from './abstract.entity';
@@ -16,8 +16,9 @@ export class PagamentoEntity extends AbstractEntity {
     this.qrCode = params.qrCode;
     this.valorPedido = params.valorPedido;
     this.idPedido = params.idPedido;
-    this.status = params.status ?
-      params.status : StatusPagamento.AGUARDANDO_PAGAMENTO;
+    this.status = params.status
+      ? params.status
+      : StatusPagamento.AGUARDANDO_PAGAMENTO;
     this.idExterno = params.idExterno;
     this.verificaPropriedadesObrigatorias();
   }
@@ -38,28 +39,38 @@ export class PagamentoEntity extends AbstractEntity {
 
   private validaPagamento(): void {
     if (this.status === StatusPagamento.PAGO) {
-      throw new PagamentoException(ErrosDominio.Pagamento.PAGAMENTO_JA_REALIZADO);
+      throw new PagamentoException(
+        ErrosDominioPagamento.PAGAMENTO_JA_REALIZADO,
+      );
     }
     if (this.status === StatusPagamento.CANCELADO) {
-      throw new PagamentoException(ErrosDominio.Pagamento.PAGAMENTO_JA_CANCELADO);
+      throw new PagamentoException(
+        ErrosDominioPagamento.PAGAMENTO_JA_CANCELADO,
+      );
     }
   }
 
   private validaCancelamento(): void {
     if (this.status === StatusPagamento.CANCELADO) {
-      throw new PagamentoException(ErrosDominio.Pagamento.PAGAMENTO_JA_CANCELADO);
+      throw new PagamentoException(
+        ErrosDominioPagamento.PAGAMENTO_JA_CANCELADO,
+      );
     }
   }
 
   private verificaPropriedadesObrigatorias(): void {
     if (!this.qrCode) {
-      throw new PagamentoException(ErrosDominio.Pagamento.QR_CODE_NAO_INFORMADO);
+      throw new PagamentoException(
+        ErrosDominioPagamento.QR_CODE_NAO_INFORMADO,
+      );
     }
     if (!this.idPedido) {
-      throw new PagamentoException(ErrosDominio.Pagamento.PEDIDO_NAO_INFORMADO);
+      throw new PagamentoException(ErrosDominioPagamento.PEDIDO_NAO_INFORMADO);
     }
     if (!this.valorPedido) {
-      throw new PagamentoException(ErrosDominio.Pagamento.VALOR_PEDIDO_NAO_INFORMADO);
+      throw new PagamentoException(
+        ErrosDominioPagamento.VALOR_PEDIDO_NAO_INFORMADO,
+      );
     }
   }
 }
@@ -73,4 +84,4 @@ export type PagamentoParams = {
   status?: StatusPagamento;
   criadoEm?: string;
   atualizadoEm?: string;
-}
+};

@@ -9,7 +9,6 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class PedidoServiceImpl implements PedidoService {
-
   pedidoApiUrl: string;
 
   constructor(
@@ -22,9 +21,9 @@ export class PedidoServiceImpl implements PedidoService {
 
   notificar(pagamento: PagamentoEntity): Observable<AxiosResponse<any, any>> {
     const body: NotificarPedidoDTO = {
-      status: pagamento.status
-    }
-    return this.httpService.patch(`${this.pedidoApiUrl}/pedidos/${pagamento.idPedido}/status`, body);
+      status: pagamento.status,
+    };
+    return this.httpService.patch('http://localhost:3500/teste', body);
   }
 }
 

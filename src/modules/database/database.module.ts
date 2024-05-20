@@ -5,7 +5,10 @@ import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({ useFactory: DataBaseProdiver, inject: [ConfigService] }),
+    TypeOrmModule.forRootAsync({
+      useFactory: DataBaseProdiver,
+      inject: [ConfigService],
+    }),
   ],
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

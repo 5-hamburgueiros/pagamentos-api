@@ -1,8 +1,8 @@
-import { ErrosDominio } from "../enum/erros-dominio.enum";
-import { DomainException } from "./domain.exception";
+import { ErrosDominioPagamento } from '../enum/erros-dominio.enum';
+import { DomainException } from './domain.exception';
 
 export class PagamentoException extends DomainException {
-  constructor(mensagem: ErrosDominio.Pagamento) {
+  constructor(mensagem: ErrosDominioPagamento) {
     super(mensagem);
   }
 }

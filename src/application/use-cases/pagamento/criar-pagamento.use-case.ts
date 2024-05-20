@@ -7,7 +7,7 @@ export class CriarPagamentoUseCase {
   constructor(
     @Inject(PagamentoRepository)
     private readonly pagamentoRepository: PagamentoRepository,
-  ) { }
+  ) {}
 
   async executar(pagamento: PagamentoEntity): Promise<PagamentoEntity> {
     return await this.pagamentoRepository.criar(pagamento);

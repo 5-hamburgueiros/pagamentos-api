@@ -1,9 +1,14 @@
 import { TipoNotificacaoMercadoPago } from '@/common/enums/tipo-notificacao-mercado-pago.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class NotificacaoPagamentoMercadoPagoDTO {
-  
   @ApiProperty({
     description: 'Tipo de notificação',
     required: true,
@@ -68,7 +73,7 @@ export class NotificacaoPagamentoMercadoPagoDTO {
   user_id: string;
 
   @ApiProperty({
-    type: () => DadosNotificacaoPagamentoMercadoPagoDTO
+    type: () => DadosNotificacaoPagamentoMercadoPagoDTO,
   })
   @IsOptional()
   data;
@@ -78,7 +83,7 @@ class DadosNotificacaoPagamentoMercadoPagoDTO {
   @ApiProperty({
     description: 'Dados do pagamento',
     required: true,
-    example: '12345'
+    example: '12345',
   })
   @IsString()
   id: string;

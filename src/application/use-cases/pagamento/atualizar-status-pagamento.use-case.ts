@@ -6,17 +6,24 @@ import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AtualizarStatusPagamentoUseCase {
-
   constructor(
     @Inject(PagamentoRepository)
     private readonly pagamentoRepository: PagamentoRepository,
-  ) { }
+  ) {}
 
-  async executar(idPedido: string, statusPagamento: StatusPagamento): Promise<PagamentoEntity> {
-    const pagamento: PagamentoEntity = await this.pagamentoRepository.pegarPorPedido(idPedido);
+  async executar(
+    idPedido: string,
+    statusPagamento: StatusPagamento,
+    idExterno?: string,
+  ): Promise<PagamentoEntity> {
+    const pagamento: PagamentoEntity =
+      await this.pagamentoRepository.pegarPorPedido(idPedido);
     this.validaPagamento(pagamento);
     pagamento.status = statusPagamento;
-    const pagamentoAtualizado = await this.pagamentoRepository.atualizar(pagamento);
+    if (idExterno) pagamento.idExterno = idExterno;
+    const pagamentoAtualizado = await this.pagamentoRepository.atualizar(
+      pagamento,
+    );
     return pagamentoAtualizado;
   }
 

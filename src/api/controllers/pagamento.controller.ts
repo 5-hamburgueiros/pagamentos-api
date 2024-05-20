@@ -1,14 +1,22 @@
-import { Body, Controller, Get, Inject, Param, Post } from "@nestjs/common";
-import { PagamentoService } from "@/domain/services/pagamento.service";
-import { CriarPagamentoDTO } from "../dtos/pagamento/criar-pagamento.dto";
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
+import { PagamentoService } from '@/domain/services/pagamento.service';
+import { CriarPagamentoDTO } from '../dtos/pagamento/criar-pagamento.dto';
+import { UUID } from 'crypto';
 
 @Controller('pagamentos')
 export class PagamentoController {
-
   constructor(
     @Inject(PagamentoService)
-    private pagamentoService: PagamentoService
-  ) { }
+    private pagamentoService: PagamentoService,
+  ) {}
 
   @Post()
   criarPagamento(@Body() criarPagamentoDTO: CriarPagamentoDTO) {
@@ -21,7 +29,9 @@ export class PagamentoController {
   }
 
   @Get(':idPagamento')
-  getPagamentoPorId(@Param('idPagamento') idPagamento: string) {
+  getPagamentoPorId(
+    @Param('idPagamento', new ParseUUIDPipe()) idPagamento: UUID,
+  ) {
     return this.pagamentoService.pegarPorId(idPagamento);
   }
 }

@@ -1,5 +1,5 @@
-import { PagamentoEntity } from "@/domain/entities";
-import { PagamentoModelTypeOrm } from "../typeorm/model";
+import { PagamentoEntity } from '@/domain/entities';
+import { PagamentoModelTypeOrm } from '../typeorm/model';
 
 export class PagamentoTypeOrmMapper {
   static paraEntidade(model: PagamentoModelTypeOrm): PagamentoEntity {
@@ -9,7 +9,7 @@ export class PagamentoTypeOrmMapper {
       valorPedido: model.valorPedido,
       qrCode: model.qrCode,
       idExterno: model.idExterno,
-      status: model.status
+      status: model.status,
     });
   }
 

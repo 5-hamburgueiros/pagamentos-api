@@ -2,8 +2,7 @@ import { PagamentoEntity } from '@/domain/entities';
 import { PagamentoService } from '@/domain/services/pagamento.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { MercadoPagoHelper } from '../helpers/mercado-pago.helper';
-import { firstValueFrom } from 'rxjs';
-import { ErroIntegracaoMercadoPagoException } from '@/common/exceptions/mercado-pago/erro-integracao-mercado-pago.exception';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { MensagensErro } from '@/common/enums/mensagens-erro.enum';
 import { CriarPagamentoMercadoPagoResponseDTO } from '../dtos/mercado-pago/criar-pagamento-mercado-pago-response.dto';
 import { CriarPagamentoDTO } from '../dtos/pagamento/criar-pagamento.dto';
@@ -13,8 +12,15 @@ import { NotificacaoPagamentoMercadoPagoDTO } from '../dtos';
 import { TipoNotificacaoMercadoPago } from '@/common/enums/tipo-notificacao-mercado-pago.enum';
 import { GetPagamentoMercadoPagoResponseDTO } from '../dtos/mercado-pago/get-pagamento-mercado-pago-response.dto';
 import { StatusPagamento } from '@/domain/enum';
-import { CriarPagamentoUseCase, GetPagamentoPorPedidoUseCase, AtualizarStatusPagamentoUseCase, GetPagamentoPorIdUseCase } from '@/application/use-cases/pagamento';
+import {
+  CriarPagamentoUseCase,
+  GetPagamentoPorPedidoUseCase,
+  AtualizarStatusPagamentoUseCase,
+  GetPagamentoPorIdUseCase,
+} from '@/application/use-cases/pagamento';
 import { PedidoService } from '@/domain/services/pedido.service';
+import { ErroIntegracaoMercadoPagoException } from '@/common/exceptions/mercado-pago/mercado-pago.exception';
+import { IntegracaoApiException } from '@/common/exceptions/pedido/integracao-api-pedido.exception';
 
 @Injectable()
 export class PagamentoServiceImpl implements PagamentoService {
@@ -32,33 +38,48 @@ export class PagamentoServiceImpl implements PagamentoService {
     @Inject(MercadoPagoMapper)
     private mercadoPagoMapper: MercadoPagoMapper,
     @Inject(PedidoService)
-    private readonly pedidoService: PedidoService
-  ) { }
+    private readonly pedidoService: PedidoService,
+  ) {}
 
   async criar(criarPagamentoDTO: CriarPagamentoDTO): Promise<PagamentoEntity> {
-    const criarPagamentoMercadoPagoDTO: CriarPagamentoMercadoPagoDTO = this.mercadoPagoMapper.paraCriarPagamentoMercadoPagoDTO(criarPagamentoDTO);
-    //TODO: apagar esse mock após problemas com integração serem resolvidos
-    //const criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO = await firstValueFrom(this.mercadoPagoHelper.getRequisicaoCriarPagamento(criarPagamentoMercadoPagoDTO));
-    const criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO = {
-      in_store_order_id: '123',
-      qr_data: '123'
-    }
+    const criarPagamentoMercadoPagoDTO: CriarPagamentoMercadoPagoDTO =
+      this.mercadoPagoMapper.paraCriarPagamentoMercadoPagoDTO(
+        criarPagamentoDTO,
+      );
+    const criarPagamentoMercadoPagoResponseDTO: CriarPagamentoMercadoPagoResponseDTO =
+      await firstValueFrom(
+        this.mercadoPagoHelper.getRequisicaoCriarPagamento(
+          criarPagamentoMercadoPagoDTO,
+        ),
+      );
     this.validaResponseCriarPagamento(criarPagamentoMercadoPagoResponseDTO);
 
-    const pagamento: PagamentoEntity = this.mercadoPagoMapper.criarEntidadePagamento(criarPagamentoDTO, criarPagamentoMercadoPagoResponseDTO);
+    const pagamento: PagamentoEntity =
+      this.mercadoPagoMapper.criarEntidadePagamento(
+        criarPagamentoDTO,
+        criarPagamentoMercadoPagoResponseDTO,
+      );
     return this.criarPagamentoUseCase.executar(pagamento);
   }
 
-  async atualizar(notificacao: NotificacaoPagamentoMercadoPagoDTO): Promise<PagamentoEntity> {
+  async receberNotificacao(
+    notificacao: NotificacaoPagamentoMercadoPagoDTO,
+  ): Promise<void> {
     if (this.validaNotificacaoPagamento(notificacao)) {
       const idExterno = notificacao.data.id;
-      const response: GetPagamentoMercadoPagoResponseDTO = await firstValueFrom(this.mercadoPagoHelper.getRequisicaoDadosPagamento(idExterno));
+      const response: GetPagamentoMercadoPagoResponseDTO = await firstValueFrom(
+        this.mercadoPagoHelper.getRequisicaoDadosPagamento(idExterno),
+      );
       const idPedido = response?.external_reference;
-      const statusPagamento: StatusPagamento = this.mercadoPagoHelper.getStatusPagamento(response?.status);
-      const pagamento: PagamentoEntity = await this.atualizarStatusPagamentoUseCase.executar(idPedido, statusPagamento);
-
-      this.notificarPedido(pagamento)
-      return pagamento;
+      const statusPagamento: StatusPagamento =
+        this.mercadoPagoHelper.getStatusPagamento(response?.status);
+      const pagamento: PagamentoEntity =
+        await this.atualizarStatusPagamentoUseCase.executar(
+          idPedido,
+          statusPagamento,
+          idExterno,
+        );
+      await this.notificarPedido(pagamento);
     }
   }
 
@@ -70,28 +91,34 @@ export class PagamentoServiceImpl implements PagamentoService {
     return this.getPagamentoPorPedidoUseCase.executar(idPedido);
   }
 
-  private validaResponseCriarPagamento(response: CriarPagamentoMercadoPagoResponseDTO): void {
+  private validaResponseCriarPagamento(
+    response: CriarPagamentoMercadoPagoResponseDTO,
+  ): void {
     if (!response || !response.qr_data) {
-      throw new ErroIntegracaoMercadoPagoException(MensagensErro.ERRO_CRIAR_PAGAMENTO_MERCADO_PAGO);
+      throw new ErroIntegracaoMercadoPagoException(
+        MensagensErro.ERRO_CRIAR_PAGAMENTO_MERCADO_PAGO,
+      );
     }
   }
 
-  private validaResponseGetDadosPagamento(response: GetPagamentoMercadoPagoResponseDTO): void {
-    if (!response) {
-      throw new ErroIntegracaoMercadoPagoException(MensagensErro.ERRO_PEGAR_DADOS_PAGAMENTO);
-    }
-  }
-
-  private validaNotificacaoPagamento(notificacao: NotificacaoPagamentoMercadoPagoDTO): boolean {
+  private validaNotificacaoPagamento(
+    notificacao: NotificacaoPagamentoMercadoPagoDTO,
+  ): boolean {
     const action = notificacao?.action;
     const idExterno = notificacao?.data?.id;
-    return [
-      TipoNotificacaoMercadoPago.PAYMENT_CREATED,
-      TipoNotificacaoMercadoPago.PAYMENT_UPDATED,
-    ].includes(action) && idExterno;
+    return (
+      [
+        TipoNotificacaoMercadoPago.PAYMENT_CREATED,
+        TipoNotificacaoMercadoPago.PAYMENT_UPDATED,
+      ].includes(action) && idExterno
+    );
   }
 
-  private notificarPedido(pagamento: PagamentoEntity) {
-    this.pedidoService.notificar(pagamento);
+  private async notificarPedido(pagamento: PagamentoEntity) {
+    try {
+      await lastValueFrom(this.pedidoService.notificar(pagamento));
+    } catch {
+      throw new IntegracaoApiException();
+    }
   }
 }

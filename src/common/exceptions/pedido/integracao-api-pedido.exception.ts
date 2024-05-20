@@ -1,8 +1,8 @@
 import { MensagensErro } from '@/common/enums/mensagens-erro.enum';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-export class PagamentoNaoEncontradoException extends HttpException {
+export class IntegracaoApiException extends HttpException {
   constructor() {
-    super(MensagensErro.PAGAMENTO_NAO_ENCONTRADO, HttpStatus.NOT_FOUND);
+    super(MensagensErro.ERRO_NOTIFICAR_PEDIDO, HttpStatus.SERVICE_UNAVAILABLE);
   }
 }

@@ -11,7 +11,9 @@ export class GetPagamentoPorPedidoUseCase {
   ) {}
 
   async executar(idPedido: string): Promise<PagamentoEntity> {
-    const pagamentoEncontrado = await this.pagamentoRepository.pegarPorPedido(idPedido);
+    const pagamentoEncontrado = await this.pagamentoRepository.pegarPorPedido(
+      idPedido,
+    );
     this.validarRetorno(pagamentoEncontrado);
     return pagamentoEncontrado;
   }
