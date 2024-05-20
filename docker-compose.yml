@@ -16,9 +16,9 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
-      target: production
+      target: build
     volumes:
-      - ./src:/user/src/app/src
+      - ./src:/user/src/app
     env_file:
       - .env
     ports:
