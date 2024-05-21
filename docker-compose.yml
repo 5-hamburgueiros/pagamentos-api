@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16.1-alpine3.19
+    deploy:
+      restart_policy:
+        condition: any
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: pagamentos
+    ports:
+      - '5432:5432'
+
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: build
+    volumes:
+      - ./src:/user/src/app
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+    deploy:
+      restart_policy:
+        condition: on-failure
