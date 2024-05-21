@@ -8,7 +8,7 @@ on:
 env:
   EKS_CLUSTER_NAME: fiap-cluster
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: cardapios-api
+  ECR_REPOSITORY: pagamentos-api
 
 jobs:
   deploy:

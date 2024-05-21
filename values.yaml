@@ -1,6 +1,6 @@
 image:
   pullPolicy: Always
-  repository: 600521020869.dkr.ecr.us-east-1.amazonaws.com/cardapios-api
+  repository: 263430346676.dkr.ecr.us-east-1.amazonaws.com/cardapios-api
   tag: latest
 
 service:
