@@ -5,4 +5,4 @@ export const QUEUE_TIMEOUT = {
 };
 
 export const DEFAULT_JOB_NAME = '__default__';
-export const APP_NAME = 'Tech Challenge';
+export const APP_NAME = 'Pagamentos API';

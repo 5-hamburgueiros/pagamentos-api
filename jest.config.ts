@@ -32,6 +32,13 @@ export default {
     'date.extensions.ts',
     'app.module.ts',
     'index.ts',
+    'common/constants.ts',
+    'domain/entities/*',
+    'common/enums/*',
+    'domain/enum/*',
+    'domain/exceptions/*',
+    'common/exceptions/*',
+    'infra/providers/*'
   ],
 
   // Indicates which provider should be used to instrument code for coverage
