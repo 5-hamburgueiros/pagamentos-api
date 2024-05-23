@@ -1,7 +1,7 @@
 # Tech Challenge FIAP - Grupo 52
 
 ## Objetivo
-API destinada ao gerenciamento do cardápio, ou seja, CRUD de ingredientes, itens e combos.
+API destinada ao gerenciamento de pagamento dos pedidos, integração com MercadoPago para geração do QrCode de pagamento, e após receber o webhook com status do qrCode como pago, sinaliza a api de Pedidos atualizando o status do pedido.
 
 ## Execução em um cluster k8s
 
@@ -36,6 +36,17 @@ docker compose up -d
 ```
 
 Com isso, a API estará disponível na porta 3333 e pode ser acessada pelo endereço http://localhost:3333
+
+## Execução dos testes
+
+Para executar os testes da aplicação, basta executar o seguinte comando:
+
+```shell
+yarn test:ci
+```
+
+Com isso, os testes irão rodar e mostra a cobertura de %.
+![Porcentagem de cobertura dos testes](./out/docs/coverage.png)
 
 ## Documentação
 
