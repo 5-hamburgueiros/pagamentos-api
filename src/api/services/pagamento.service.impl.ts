@@ -21,6 +21,8 @@ import {
 import { PedidoService } from '@/domain/services/pedido.service';
 import { ErroIntegracaoMercadoPagoException } from '@/common/exceptions/mercado-pago/mercado-pago.exception';
 import { IntegracaoApiException } from '@/common/exceptions/pedido/integracao-api-pedido.exception';
+import { PagamentoConfirmadoQueueService } from './messaging/pagamento-confirmado-queue.service';
+import { PagamentoCanceladoQueueService } from './messaging/pagamento-cancelado-queue.service';
 
 @Injectable()
 export class PagamentoServiceImpl implements PagamentoService {
@@ -39,7 +41,9 @@ export class PagamentoServiceImpl implements PagamentoService {
     private mercadoPagoMapper: MercadoPagoMapper,
     @Inject(PedidoService)
     private readonly pedidoService: PedidoService,
-  ) {}
+    private readonly pagamentoConfirmadoQueueService: PagamentoConfirmadoQueueService,
+    private readonly pagamentoCanceladoQueueService: PagamentoCanceladoQueueService,
+  ) { }
 
   async criar(criarPagamentoDTO: CriarPagamentoDTO): Promise<PagamentoEntity> {
     const criarPagamentoMercadoPagoDTO: CriarPagamentoMercadoPagoDTO =
@@ -119,6 +123,13 @@ export class PagamentoServiceImpl implements PagamentoService {
       await lastValueFrom(this.pedidoService.notificar(pagamento));
     } catch {
       throw new IntegracaoApiException();
+    }
+
+    if (pagamento.status === StatusPagamento.PAGO) {
+      this.pagamentoConfirmadoQueueService.emit(pagamento.idPedido);
+    }
+    if (pagamento.status === StatusPagamento.CANCELADO) {
+      this.pagamentoCanceladoQueueService.emit(pagamento.idPedido);
     }
   }
 }

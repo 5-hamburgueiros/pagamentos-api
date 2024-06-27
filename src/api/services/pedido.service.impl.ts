@@ -23,15 +23,6 @@ export class PedidoServiceImpl implements PedidoService {
     const body: NotificarPedidoDTO = {
       status: pagamento.status,
     };
-    return this.httpService.patch('http://localhost:3500/teste', body);
+    return this.httpService.patch(`${this.pedidoApiUrl}/pedidos/${pagamento.idPedido}/status`, body);
   }
 }
-
-/*
-curl --request PATCH \
-  --url http://localhost:3000/pedidos/6642cad2c84a88404bce13ed/status \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "status": "PAGO"
-}'
-*/
