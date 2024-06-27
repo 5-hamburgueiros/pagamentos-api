@@ -18,11 +18,8 @@ import {
   AtualizarStatusPagamentoUseCase,
   GetPagamentoPorIdUseCase,
 } from '@/application/use-cases/pagamento';
-import { PedidoService } from '@/domain/services/pedido.service';
 import { ErroIntegracaoMercadoPagoException } from '@/common/exceptions/mercado-pago/mercado-pago.exception';
-import { IntegracaoApiException } from '@/common/exceptions/pedido/integracao-api-pedido.exception';
-import { PagamentoConfirmadoQueueService } from './messaging/pagamento-confirmado-queue.service';
-import { PagamentoCanceladoQueueService } from './messaging/pagamento-cancelado-queue.service';
+import { StatusPagamentoProducerService } from './messaging/status-pagamento-producer.service';
 
 @Injectable()
 export class PagamentoServiceImpl implements PagamentoService {
@@ -39,10 +36,7 @@ export class PagamentoServiceImpl implements PagamentoService {
     private mercadoPagoHelper: MercadoPagoHelper,
     @Inject(MercadoPagoMapper)
     private mercadoPagoMapper: MercadoPagoMapper,
-    @Inject(PedidoService)
-    private readonly pedidoService: PedidoService,
-    private readonly pagamentoConfirmadoQueueService: PagamentoConfirmadoQueueService,
-    private readonly pagamentoCanceladoQueueService: PagamentoCanceladoQueueService,
+    private readonly statusPagamentoProducer: StatusPagamentoProducerService
   ) { }
 
   async criar(criarPagamentoDTO: CriarPagamentoDTO): Promise<PagamentoEntity> {
@@ -119,17 +113,11 @@ export class PagamentoServiceImpl implements PagamentoService {
   }
 
   private async notificarPedido(pagamento: PagamentoEntity) {
-    try {
-      await lastValueFrom(this.pedidoService.notificar(pagamento));
-    } catch {
-      throw new IntegracaoApiException();
-    }
-
     if (pagamento.status === StatusPagamento.PAGO) {
-      this.pagamentoConfirmadoQueueService.emit(pagamento.idPedido);
+      this.statusPagamentoProducer.enviaPagamentoConfirmado(pagamento.idPedido);
     }
     if (pagamento.status === StatusPagamento.CANCELADO) {
-      this.pagamentoCanceladoQueueService.emit(pagamento.idPedido);
+      this.statusPagamentoProducer.enviaPagamentoCancelado(pagamento.idPedido);
     }
   }
 }

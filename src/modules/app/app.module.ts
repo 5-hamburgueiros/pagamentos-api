@@ -19,10 +19,7 @@ import { PagamentoRepositoryImpl } from '@/infra/repository/pagamento';
 import { DatabaseModule } from '../database/database.module';
 import { typeOrmEntities } from '@/infra/database/typeorm/config/typeorm.models';
 import { MercadoPagoMapper } from '@/api/mappers/mercado-pago.mapper';
-import { PedidoService } from '@/domain/services/pedido.service';
-import { PedidoServiceImpl } from '@/api/services/pedido.service.impl';
-import { PagamentoCanceladoQueueService } from '@/api/services/messaging/pagamento-cancelado-queue.service';
-import { PagamentoConfirmadoQueueService } from '@/api/services/messaging/pagamento-confirmado-queue.service';
+import { MessagingModule } from '../messaging/messaging.module';
 
 const useCases: Provider[] = [
   CriarPagamentoUseCase,
@@ -36,18 +33,6 @@ const services: Provider[] = [
   {
     provide: PagamentoService,
     useClass: PagamentoServiceImpl,
-  },
-  {
-    provide: PedidoService,
-    useClass: PedidoServiceImpl,
-  },
-  {
-    provide: PagamentoConfirmadoQueueService,
-    useClass: PagamentoConfirmadoQueueService,
-  },
-  {
-    provide: PagamentoCanceladoQueueService,
-    useClass: PagamentoCanceladoQueueService,
   },
 ];
 const repositorios: Provider[] = [
@@ -65,6 +50,7 @@ const interceptors: Provider[] = [];
     HealthModule,
     HttpModule,
     TypeOrmModule.forFeature(typeOrmEntities),
+    MessagingModule
   ],
   providers: [
     ...useCases,
