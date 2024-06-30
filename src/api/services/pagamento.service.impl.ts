@@ -36,8 +36,8 @@ export class PagamentoServiceImpl implements PagamentoService {
     private mercadoPagoHelper: MercadoPagoHelper,
     @Inject(MercadoPagoMapper)
     private mercadoPagoMapper: MercadoPagoMapper,
-    private readonly statusPagamentoProducer: StatusPagamentoProducerService
-  ) { }
+    private readonly statusPagamentoProducer: StatusPagamentoProducerService,
+  ) {}
 
   async criar(criarPagamentoDTO: CriarPagamentoDTO): Promise<PagamentoEntity> {
     const criarPagamentoMercadoPagoDTO: CriarPagamentoMercadoPagoDTO =
@@ -71,6 +71,7 @@ export class PagamentoServiceImpl implements PagamentoService {
       const idPedido = response?.external_reference;
       const statusPagamento: StatusPagamento =
         this.mercadoPagoHelper.getStatusPagamento(response?.status);
+
       const pagamento: PagamentoEntity =
         await this.atualizarStatusPagamentoUseCase.executar(
           idPedido,
@@ -112,7 +113,7 @@ export class PagamentoServiceImpl implements PagamentoService {
     );
   }
 
-  private async notificarPedido(pagamento: PagamentoEntity) {
+  private async notificarPedido(pagamento: any) {
     if (pagamento.status === StatusPagamento.PAGO) {
       this.statusPagamentoProducer.enviaPagamentoConfirmado(pagamento.idPedido);
     }
