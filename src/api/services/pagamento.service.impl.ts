@@ -18,9 +18,8 @@ import {
   AtualizarStatusPagamentoUseCase,
   GetPagamentoPorIdUseCase,
 } from '@/application/use-cases/pagamento';
-import { PedidoService } from '@/domain/services/pedido.service';
 import { ErroIntegracaoMercadoPagoException } from '@/common/exceptions/mercado-pago/mercado-pago.exception';
-import { IntegracaoApiException } from '@/common/exceptions/pedido/integracao-api-pedido.exception';
+import { StatusPagamentoProducerService } from './messaging/status-pagamento-producer.service';
 
 @Injectable()
 export class PagamentoServiceImpl implements PagamentoService {
@@ -37,8 +36,7 @@ export class PagamentoServiceImpl implements PagamentoService {
     private mercadoPagoHelper: MercadoPagoHelper,
     @Inject(MercadoPagoMapper)
     private mercadoPagoMapper: MercadoPagoMapper,
-    @Inject(PedidoService)
-    private readonly pedidoService: PedidoService,
+    private readonly statusPagamentoProducer: StatusPagamentoProducerService,
   ) {}
 
   async criar(criarPagamentoDTO: CriarPagamentoDTO): Promise<PagamentoEntity> {
@@ -73,6 +71,7 @@ export class PagamentoServiceImpl implements PagamentoService {
       const idPedido = response?.external_reference;
       const statusPagamento: StatusPagamento =
         this.mercadoPagoHelper.getStatusPagamento(response?.status);
+
       const pagamento: PagamentoEntity =
         await this.atualizarStatusPagamentoUseCase.executar(
           idPedido,
@@ -114,11 +113,12 @@ export class PagamentoServiceImpl implements PagamentoService {
     );
   }
 
-  private async notificarPedido(pagamento: PagamentoEntity) {
-    try {
-      await lastValueFrom(this.pedidoService.notificar(pagamento));
-    } catch {
-      throw new IntegracaoApiException();
+  private async notificarPedido(pagamento: any) {
+    if (pagamento.status === StatusPagamento.PAGO) {
+      this.statusPagamentoProducer.enviaPagamentoConfirmado(pagamento.idPedido);
+    }
+    if (pagamento.status === StatusPagamento.CANCELADO) {
+      this.statusPagamentoProducer.enviaPagamentoCancelado(pagamento.idPedido);
     }
   }
 }

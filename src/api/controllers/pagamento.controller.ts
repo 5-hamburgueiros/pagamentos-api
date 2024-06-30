@@ -16,7 +16,7 @@ export class PagamentoController {
   constructor(
     @Inject(PagamentoService)
     private pagamentoService: PagamentoService,
-  ) {}
+  ) { }
 
   @Post()
   criarPagamento(@Body() criarPagamentoDTO: CriarPagamentoDTO) {
@@ -29,7 +29,7 @@ export class PagamentoController {
   }
 
   @Get(':idPagamento')
-  getPagamentoPorId(
+  async getPagamentoPorId(
     @Param('idPagamento', new ParseUUIDPipe()) idPagamento: UUID,
   ) {
     return this.pagamentoService.pegarPorId(idPagamento);
