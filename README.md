@@ -59,3 +59,13 @@ Já se estiver utilizando Docker, pode acessar em http://localhost:3333/swagger 
 
 E se estiver utilizando o ambiente de desenvolvimento via `yarn`, basta acessar em http://localhost:3000/swagger e http://localhost:3000/swagger-json .
 
+
+
+## OWASP ZAP
+Executamos o OWASP ZAP na geração de pagamento e webhook do Mercado Pago.
+Logo na primeira execução foi encontrada apenas alertas do tipo 'Informational' que não chega nem ser um alerta de baixa prioridade, conforme relátorio abaixo.
+![Relatório OWASP ZAP HTML](./out/docs/ZAP%20Scanning%20Report%20-%2008-07-2024-pagamentos.html)
+![Relatório OWASP ZAP PDF](./out/docs/2024-07-08-ZAP-Report-.pdf)
+
+
+
