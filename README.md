@@ -75,3 +75,12 @@ Foi escolhido o padrão "Coreografada" por priorizar a independência. Mas além
 
 **Compensação:** E se algo der errado, todos os serviços participantes da SAGA dão rollback no fluxo, executando ações de compensação. Isso garante que o sistema retorne a um estado consistente.
 
+
+## OWASP ZAP
+Executamos o OWASP ZAP na geração de pagamento e webhook do Mercado Pago.
+Logo na primeira execução foi encontrada apenas alertas do tipo 'Informational' que não chega nem ser um alerta de baixa prioridade, conforme relátorio abaixo.
+![Relatório OWASP ZAP HTML](./out/docs/ZAP%20Scanning%20Report%20-%2008-07-2024-pagamentos.html)
+![Relatório OWASP ZAP PDF](./out/docs/2024-07-08-ZAP-Report-.pdf)
+
+
+
