@@ -7,8 +7,9 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useGlobalPipes(new ValidationPipe());
-  SwaggerStartup.init(app);
-  await app.listen(getAppPort(app));
+  const port = getAppPort(app);
+  SwaggerStartup.init(app, port);
+  await app.listen(port);
 }
 bootstrap();
 

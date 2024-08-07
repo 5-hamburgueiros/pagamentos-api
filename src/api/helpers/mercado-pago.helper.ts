@@ -1,11 +1,11 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   CriarPagamentoMercadoPagoDTO,
   CriarPagamentoMercadoPagoResponseDTO,
 } from '../dtos';
 import { HttpService } from '@nestjs/axios';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 import { AxiosRequestConfig } from 'axios';
 import {
   GetPagamentoMercadoPagoResponseDTO,
@@ -40,9 +40,10 @@ export class MercadoPagoHelper {
   ): Observable<CriarPagamentoMercadoPagoResponseDTO> {
     const configuracaoRequest = this.getAxiosRequestConfig();
     const body = JSON.parse(JSON.stringify(criarPagamentoMercadoPagoDTO));
+    console.log(criarPagamentoMercadoPagoDTO)
     return this.httpService
       .post(this.urlCriarPagamento, body, configuracaoRequest)
-      .pipe(map((response) => response.data));
+      .pipe(map((response) => response.data), catchError(error => { console.log(error); return error; }));
   }
 
   getRequisicaoDadosPagamento(
