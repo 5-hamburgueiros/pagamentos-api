@@ -63,7 +63,7 @@ export class PagamentoServiceImpl implements PagamentoService {
   async receberNotificacao(
     notificacao: NotificacaoPagamentoMercadoPagoDTO,
   ): Promise<void> {
-    const idPedido = '7ed4aaef-e6c2-44fc-81d9-caf7f4d9e01a';
+    const idPedido = 'f1b6d555-4a77-44e6-a220-fed3c1889df9';
     const idExterno = idPedido;
     const statusPagamento: StatusPagamento = StatusPagamento.PAGO;
     const pagamento: PagamentoEntity =

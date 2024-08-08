@@ -3,6 +3,7 @@ import { AtualizarStatusPagamentoUseCase } from '@/application/use-cases/pagamen
 import { StatusPagamento } from '@/domain/enum';
 import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
+import { PedidoCompensacao } from './interfaces/pedido-compensacao.interface';
 
 @Injectable()
 export class PagamentoCompensacaoService {
@@ -13,7 +14,7 @@ export class PagamentoCompensacaoService {
   ) {}
 
   @RabbitSubscribe({ queue: 'pedido_compensatorio_pagamento' })
-  async compensatoria(message: any) {
+  async compensatoria(message: PedidoCompensacao) {
     const params = {
       idPedido: message.pedido,
       status: StatusPagamento.ESTORNO,
