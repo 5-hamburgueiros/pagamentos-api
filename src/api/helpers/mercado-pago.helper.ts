@@ -71,7 +71,7 @@ export class MercadoPagoHelper {
     return this.httpService
       .put<GetPagamentoMercadoPagoResponseDTO>(
         this.constroiUrlDadosPagamento(idExternoPagamento),
-        { status: 'cancelled' },
+        { status: GetPagamentoStatusMercadoPagoResponseDTO.CANCELLED },
         configuracaoRequest,
       )
       .pipe(map((response) => response.data));
