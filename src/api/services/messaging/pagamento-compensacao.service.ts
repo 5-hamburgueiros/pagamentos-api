@@ -4,13 +4,14 @@ import { StatusPagamento } from '@/domain/enum';
 import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 import { PedidoCompensacao } from './interfaces/pedido-compensacao.interface';
+import { StatusPagamentoProducerService } from './status-pagamento-producer.service';
 
 @Injectable()
 export class PagamentoCompensacaoService {
   constructor(
-    private readonly amqpConnection: AmqpConnection,
     @Inject(AtualizarStatusPagamentoUseCase)
     private readonly atualizarStatusPagamentoUseCase: AtualizarStatusPagamentoUseCase,
+    private readonly statusPagamentoProducerService: StatusPagamentoProducerService,
   ) {}
 
   @RabbitSubscribe({ queue: 'pedido_compensatorio_pagamento' })
@@ -25,9 +26,8 @@ export class PagamentoCompensacaoService {
       params.status,
     );
 
-    await this.amqpConnection.managedChannel.sendToQueue(
-      'pedido_compensatorio_pedido',
-      JSON.stringify({ ...params, status: StatusPagamento.CANCELADO }),
+    this.statusPagamentoProducerService.enviarPedidoCompensacao(
+      params.idPedido,
     );
   }
 }

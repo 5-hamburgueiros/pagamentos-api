@@ -12,6 +12,7 @@ import {
   GetPagamentoStatusMercadoPagoResponseDTO,
 } from '../dtos/mercado-pago/get-pagamento-mercado-pago-response.dto';
 import { StatusPagamento } from '@/domain/enum';
+import { StatusPagamentoProducerService } from '../services/messaging/status-pagamento-producer.service';
 
 @Injectable()
 export class MercadoPagoHelper {
@@ -25,6 +26,7 @@ export class MercadoPagoHelper {
     private readonly httpService: HttpService,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
+    private readonly statusPagamentoProducerService: StatusPagamentoProducerService,
   ) {
     this.mercadoPagoUserId = this.configService.get('MERCADO_PAGO_USER_ID');
     this.mercadoBaseURL = this.configService.get('MERCADO_PAGO_BASE_URL');
@@ -45,8 +47,13 @@ export class MercadoPagoHelper {
       .post(this.urlCriarPagamento, body, configuracaoRequest)
       .pipe(
         map((response) => response.data),
-        catchError((error) => {
+        catchError(async (error) => {
           console.log(error);
+
+          this.statusPagamentoProducerService.enviarPedidoCompensacao(
+            criarPagamentoMercadoPagoDTO.external_reference,
+          );
+
           return error;
         }),
       );

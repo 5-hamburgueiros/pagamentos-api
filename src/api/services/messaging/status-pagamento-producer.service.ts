@@ -31,6 +31,16 @@ export class StatusPagamentoProducerService {
     }
   }
 
+  async enviarPedidoCompensacao(idPedido: string) {
+    const mensagem = this.criaMensagem(idPedido, StatusPagamento.CANCELADO);
+    try {
+      await this.amqpConnection.managedChannel.sendToQueue('pedido_compensatorio_pedido', mensagem);
+      console.log("enviei", mensagem)
+    } catch (error) {
+      console.log("erro ao enviar mensagem", error)
+    }
+  }
+
   private criaMensagem(idPedido: string, status: StatusPagamento): string {
     return new MensagemPagamentoStatusDTO()
       .setIdPedido(idPedido)
