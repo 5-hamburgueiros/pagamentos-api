@@ -12,6 +12,7 @@ import {
   GetPagamentoStatusMercadoPagoResponseDTO,
 } from '../dtos/mercado-pago/get-pagamento-mercado-pago-response.dto';
 import { StatusPagamento } from '@/domain/enum';
+import { StatusPagamentoProducerService } from '../services/messaging/status-pagamento-producer.service';
 
 @Injectable()
 export class MercadoPagoHelper {
@@ -25,6 +26,7 @@ export class MercadoPagoHelper {
     private readonly httpService: HttpService,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
+    private readonly statusPagamentoProducerService: StatusPagamentoProducerService,
   ) {
     this.mercadoPagoUserId = this.configService.get('MERCADO_PAGO_USER_ID');
     this.mercadoBaseURL = this.configService.get('MERCADO_PAGO_BASE_URL');
@@ -40,10 +42,21 @@ export class MercadoPagoHelper {
   ): Observable<CriarPagamentoMercadoPagoResponseDTO> {
     const configuracaoRequest = this.getAxiosRequestConfig();
     const body = JSON.parse(JSON.stringify(criarPagamentoMercadoPagoDTO));
-    console.log(criarPagamentoMercadoPagoDTO)
+    console.log(criarPagamentoMercadoPagoDTO);
     return this.httpService
       .post(this.urlCriarPagamento, body, configuracaoRequest)
-      .pipe(map((response) => response.data), catchError(error => { console.log(error); return error; }));
+      .pipe(
+        map((response) => response.data),
+        catchError(async (error) => {
+          console.log(error);
+
+          this.statusPagamentoProducerService.enviarPedidoCompensacao(
+            criarPagamentoMercadoPagoDTO.external_reference,
+          );
+
+          return error;
+        }),
+      );
   }
 
   getRequisicaoDadosPagamento(
@@ -53,6 +66,19 @@ export class MercadoPagoHelper {
     return this.httpService
       .get<GetPagamentoMercadoPagoResponseDTO>(
         this.constroiUrlDadosPagamento(idExternoPagamento),
+        configuracaoRequest,
+      )
+      .pipe(map((response) => response.data));
+  }
+
+  cancelaPedido(
+    idExternoPagamento: string,
+  ): Observable<GetPagamentoMercadoPagoResponseDTO> {
+    const configuracaoRequest = this.getAxiosRequestConfig();
+    return this.httpService
+      .put<GetPagamentoMercadoPagoResponseDTO>(
+        this.constroiUrlDadosPagamento(idExternoPagamento),
+        { status: GetPagamentoStatusMercadoPagoResponseDTO.CANCELLED },
         configuracaoRequest,
       )
       .pipe(map((response) => response.data));

@@ -1,3 +1,4 @@
+import { MercadoPagoHelper } from '@/api/helpers/mercado-pago.helper';
 import { PagamentoNaoEncontradoException } from '@/common/exceptions/pagamento/pagamento-nao-encontrado.exception';
 import { PagamentoEntity } from '@/domain/entities';
 import { StatusPagamento } from '@/domain/enum';
@@ -9,6 +10,8 @@ export class AtualizarStatusPagamentoUseCase {
   constructor(
     @Inject(PagamentoRepository)
     private readonly pagamentoRepository: PagamentoRepository,
+    @Inject(MercadoPagoHelper)
+    private mercadoPagoHelper: MercadoPagoHelper,
   ) {}
 
   async executar(
@@ -19,11 +22,18 @@ export class AtualizarStatusPagamentoUseCase {
     const pagamento: PagamentoEntity =
       await this.pagamentoRepository.pegarPorPedido(idPedido);
     this.validaPagamento(pagamento);
-    pagamento.status = statusPagamento;
+    pagamento.status =
+      statusPagamento === StatusPagamento.ESTORNO
+        ? StatusPagamento.CANCELADO
+        : statusPagamento;
+
+    if (statusPagamento === StatusPagamento.ESTORNO) {
+      await this.mercadoPagoHelper.cancelaPedido(pagamento.idExterno);
+    }
+
     if (idExterno) pagamento.idExterno = idExterno;
-    const pagamentoAtualizado = await this.pagamentoRepository.atualizar(
-      pagamento,
-    );
+    const pagamentoAtualizado =
+      await this.pagamentoRepository.atualizar(pagamento);
     return pagamentoAtualizado;
   }
 
