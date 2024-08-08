@@ -19,11 +19,18 @@ export class AtualizarStatusPagamentoUseCase {
     const pagamento: PagamentoEntity =
       await this.pagamentoRepository.pegarPorPedido(idPedido);
     this.validaPagamento(pagamento);
-    pagamento.status = statusPagamento;
+    pagamento.status =
+      statusPagamento === StatusPagamento.ESTORNO
+        ? StatusPagamento.CANCELADO
+        : statusPagamento;
+
+    if (statusPagamento === StatusPagamento.ESTORNO) {
+      // TODO: REALIZAR ESTORNO NO MERCADO PAGO
+    }
+
     if (idExterno) pagamento.idExterno = idExterno;
-    const pagamentoAtualizado = await this.pagamentoRepository.atualizar(
-      pagamento,
-    );
+    const pagamentoAtualizado =
+      await this.pagamentoRepository.atualizar(pagamento);
     return pagamentoAtualizado;
   }
 
