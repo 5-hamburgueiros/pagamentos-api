@@ -40,10 +40,16 @@ export class MercadoPagoHelper {
   ): Observable<CriarPagamentoMercadoPagoResponseDTO> {
     const configuracaoRequest = this.getAxiosRequestConfig();
     const body = JSON.parse(JSON.stringify(criarPagamentoMercadoPagoDTO));
-    console.log(criarPagamentoMercadoPagoDTO)
+    console.log(criarPagamentoMercadoPagoDTO);
     return this.httpService
       .post(this.urlCriarPagamento, body, configuracaoRequest)
-      .pipe(map((response) => response.data), catchError(error => { console.log(error); return error; }));
+      .pipe(
+        map((response) => response.data),
+        catchError((error) => {
+          console.log(error);
+          return error;
+        }),
+      );
   }
 
   getRequisicaoDadosPagamento(
@@ -53,6 +59,19 @@ export class MercadoPagoHelper {
     return this.httpService
       .get<GetPagamentoMercadoPagoResponseDTO>(
         this.constroiUrlDadosPagamento(idExternoPagamento),
+        configuracaoRequest,
+      )
+      .pipe(map((response) => response.data));
+  }
+
+  cancelaPedido(
+    idExternoPagamento: string,
+  ): Observable<GetPagamentoMercadoPagoResponseDTO> {
+    const configuracaoRequest = this.getAxiosRequestConfig();
+    return this.httpService
+      .put<GetPagamentoMercadoPagoResponseDTO>(
+        this.constroiUrlDadosPagamento(idExternoPagamento),
+        { status: 'cancelled' },
         configuracaoRequest,
       )
       .pipe(map((response) => response.data));

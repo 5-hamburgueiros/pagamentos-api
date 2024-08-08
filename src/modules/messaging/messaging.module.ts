@@ -10,7 +10,12 @@ import { Module, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { typeOrmEntities } from '@/infra/database/typeorm/config/typeorm.models';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MercadoPagoHelper } from '@/api/helpers/mercado-pago.helper';
+import { MercadoPagoMapper } from '@/api/mappers/mercado-pago.mapper';
+import { HttpModule } from '@nestjs/axios';
 
+const helpers: Provider[] = [MercadoPagoHelper];
+const mappers: Provider[] = [MercadoPagoMapper];
 const useCases: Provider[] = [AtualizarStatusPagamentoUseCase];
 const services: Provider[] = [
   {
@@ -27,6 +32,7 @@ const repositorios: Provider[] = [
 @Module({
   imports: [
     TypeOrmModule.forFeature(typeOrmEntities),
+    HttpModule,
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       useFactory: async (configService: ConfigService) => {
         const host = configService.get('RMQ_HOST');
@@ -42,6 +48,8 @@ const repositorios: Provider[] = [
   providers: [
     ...useCases,
     ...repositorios,
+    ...helpers,
+    ...mappers,
     StatusPagamentoProducerService,
     PagamentoCompensacaoService,
   ],
